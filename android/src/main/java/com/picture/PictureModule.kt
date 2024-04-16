@@ -43,13 +43,13 @@ class PictureModule(reactContext: ReactApplicationContext) :
   private var selectedAssets: List<LocalMedia> = ArrayList()
   private var singleSelectedMode: Boolean = false
   private var maxVideoDuration: Int = 60
-  private var numberOfColumn: Int = 3
-  private var maxSelectedAssets: Int = 20
+  private var numberOfColumn: Int = 4
+  private var maxCount: Int = 20
   private var mediaType: String = "all"
   private var isPreview: Boolean = true
   private var isExportThumbnail: Boolean = false
   private var maxVideo: Int = 20
-  private var isCamera: Boolean = true
+  private var isCamera: Boolean = false
   private var cropOption: UCrop.Options? = null;
   private var primaryColor: Int = Color.BLACK;
 
@@ -66,7 +66,7 @@ class PictureModule(reactContext: ReactApplicationContext) :
     PictureSelector.create(activity)
       .openGallery(if (mediaType == "video") SelectMimeType.ofVideo() else if (mediaType == "image") SelectMimeType.ofImage() else SelectMimeType.ofAll())
       .setImageEngine(imageEngine)
-      .setMaxSelectNum(maxSelectedAssets)
+      .setMaxSelectNum(maxCount)
       .setImageSpanCount(numberOfColumn)
       .setCropEngine(onSetCropEngine())
       .isDirectReturnSingle(true)
@@ -74,7 +74,7 @@ class PictureModule(reactContext: ReactApplicationContext) :
       .isPageStrategy(true, 50)
       .isWithSelectVideoImage(true)
       .setRecordVideoMaxSecond(maxVideoDuration)
-      .setMaxVideoSelectNum(if (maxVideo != 20) maxVideo else maxSelectedAssets)
+      .setMaxVideoSelectNum(if (maxVideo != 20) maxVideo else maxCount)
       .isMaxSelectEnabledMask(true)
       .setSelectedData(selectedAssets)
       .setSelectorUIStyle(style)
@@ -115,17 +115,14 @@ class PictureModule(reactContext: ReactApplicationContext) :
   private fun setConfiguration(options: ReadableMap?) {
     if (options != null) {
       handleSelectedAssets(options)
-      singleSelectedMode = options.getBoolean("singleSelectedMode")
+      maxCount = options.getInt("maxCount")
+      singleSelectedMode = maxCount == 1
       maxVideoDuration = options.getInt("maxVideoDuration")
       numberOfColumn = options.getInt("numberOfColumn")
-      maxSelectedAssets = options.getInt("maxSelectedAssets")
       mediaType = options.getString("mediaType").toString()
       isPreview = options.getBoolean("isPreview")
       isExportThumbnail = options.getBoolean("isExportThumbnail")
       maxVideo = options.getInt("maxVideo")
-      isCamera = options.getBoolean("usedCameraButton")
-
-//      setStyle(options) // set style for UI
 
       val isCrop = options.getBoolean("isCrop") && singleSelectedMode == true
 
@@ -149,7 +146,6 @@ class PictureModule(reactContext: ReactApplicationContext) :
     options.isForbidSkipMultipleCrop(true)
     options.setMaxScaleMultiplier(100f)
     options.setLogoColor(primaryColor)
-//    options.setToolbarWidgetColor(R.color.app_color_black)
     options.setStatusBarColor(mainStyle.statusBarColor)
     options.isDarkStatusBarBlack(mainStyle.isDarkStatusBarBlack)
 
